@@ -1,0 +1,57 @@
+
+montecarlo:
+	names are y1-y6 ;
+	genclasses = c(4);
+	classes = c(2);
+	nobs = 500;
+	seed = 3454367;
+	nrep = 1;
+	save = mcdata.dat;
+
+analysis:
+	type = mixture;
+
+model population:
+	%overall%
+	![x@0]; !x@1;
+	y1-y6*.5;
+	i s q| y1@0 y2@1 y3@2 y4@3 y5@4 y6@5;
+	i*1; s*.5; q*.01;
+	!c#1 on x*1;
+	!i on x*.5;
+	!s on x*.3;
+	!q on x*.2;
+
+	%c#1%
+	[i*10 s*.5 q*0];
+	i*5;
+	q*0;
+
+	%c#2%
+	[i*15 s*0 q*0];
+	i*10
+	s*0;
+	q*0;
+
+        %c#3%
+        [i*5 s*1 q*.5];
+        i*5
+        q*.01;
+        
+        %c#4%
+        [i*10 s*2 q*0];
+        i*5
+        q*0;
+model:
+	%overall%
+	y1-y6*.5;
+	i s | y1@0 y2@1 y3@2 y4@3 y5@4 y6@5;
+	i*1; s*.2;
+	!c#1 on x*1;
+	!i on x*.5;
+	!s on x*.3;
+
+
+
+
+	

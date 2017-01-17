@@ -1,0 +1,50 @@
+## Fit the growth mixture model in Mplus
+
+This code fits a four class growth mixture model.  The model assumes a linear trajectory with equally spaced time intervals.
+```{r}
+gmm.model.1 <- " %OVERALL% 
+                 i s | y1@0 y2@1 y3@2 y4@3 y5@4 y6@5 ;
+               "
+gmm.body <- mplusObject(
+  ANALYSIS = "type=mixture; starts = 100 20;",
+  VARIABLE = "classes = c(4); idvariable = id;",
+  MODEL = gmm.model.1,
+  OUTPUT = "",
+  SAVEDATA = "save = cprob; file=model1prob.dat;",
+  usevariables = c("id", "y1", "y2", "y3", "y4", "y5", "y6"),
+  rdata = data
+)
+gmm.fit <- mplusModeler(gmm.body, modelout = "gmm001.inp", run = TRUE)
+
+```
+
+## Read in the saved class membership and parameter estimates
+
+After fitting the model in Mplus, we need to get the results back into R.
+
+This code reads in and saves the parameter estimates to an object called *param1*.
+
+```{r}
+
+param1 <- extractModelParameters("gmm001.out")$unstandardized %>% 
+  filter(grepl("Means", paramHeader)) %>%
+  filter(!grepl("Categorical.Latent.Variables", LatentClass))
+```
+
+This code reads in the predicted class membership and merges it with the original data. It also recreates the "long" format of the data.
+
+```{r}
+foo <- getSavedata_Data("gmm001.out") %>%
+  rename(model1.c = C) %>%
+  select(ID, model1.c) 
+colnames(foo) <- tolower(names(foo)) 
+
+data <- data %>%
+  full_join(foo, by= "id" )
+
+data.long <- data %>% 
+  gather(foo, y, y1:y6) %>%
+  mutate(time = as.numeric(str_sub(foo, 2))) %>%
+  arrange(id, time) %>%
+  select(-foo)
+```

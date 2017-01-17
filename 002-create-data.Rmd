@@ -1,0 +1,22 @@
+
+## Create Data
+Since we don't have original data to use in this example, we are going to simulate some data using Mplus' Monte Carlo option.
+
+I use the R package MplusAutomation to run Mplus through R.  The function allows you to pass through most of Mplus' options.  However, one of the few options it doesn't support is the Monte Carlo option.  
+
+To get around this, I created a standard Mplus input file in a text editor.  I run this file in Mplus with the runModels() command. 
+
+**Note:** This will run all *.inp* files in the working directory. 
+
+The model simulates longitudinal data over six time points for 500 subjects.  There are four latent classes.
+
+```{r}
+# gmm001.inp is the Mplus file that is created later in the presentation
+# I am deleting it now so it doesn't get run here.
+file.remove("gmm001.inp")
+file.remove("gmm002.inp")
+
+runModels()
+
+```
+

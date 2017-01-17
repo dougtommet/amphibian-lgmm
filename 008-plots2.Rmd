@@ -1,0 +1,40 @@
+
+## Plot the trajectories of the latent classes from the second model
+
+Create the functions to be plotted for each latent class
+```{r}
+param2.matrix <- param2 %>%
+  select(param, est, LatentClass) %>%
+  spread(param, est) %>%
+  select(-LatentClass)
+param2.matrix
+
+fun.1 <- function(x)  9.721 + 1.919*x + 0.009*x^2 
+fun.2 <- function(x) 12.670 + 0.191*x - 0.007*x^2
+fun.3 <- function(x)  4.403 + 0.783*x + 0.514*x^2
+```
+
+Note: In this set of plots I am including a loess smooth line in addition to the estimated trajectory.
+```{r}
+myplot2 <- function(x, f) {
+  data.long %>%
+  filter(subsample <.25) %>%
+  filter(model2.c==x) %>%
+    ggplot(aes(x=time, y=y, group=id)) +
+      scale_y_continuous(limits = c(0, 30)) +
+      geom_line() + 
+      stat_function(fun = f, color="blue", size=2) +
+      geom_smooth(aes(group=1), color="red") +
+      ggtitle(paste("class", x))
+  
+}
+plot1 <- myplot2(1, fun.1)
+plot2 <- myplot2(2, fun.2)
+plot3 <- myplot2(3, fun.3)
+
+```
+
+Combine the plots into one.
+```{r}
+multiplot(plotlist = list(plot1, plot2, plot3), cols = 3)
+```

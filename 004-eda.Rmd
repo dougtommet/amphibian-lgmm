@@ -1,0 +1,22 @@
+
+## Exploratory data analysis
+
+This is just a simple plot to visualize the data.  In a real analysis, you should do more.
+```{r}
+
+data.long %>%
+  filter(subsample <.2) %>%
+  ggplot(aes(x=time, y=y, group=id)) +
+    geom_line() +
+    geom_smooth(aes(group = 1), size=2)
+```
+
+This is the plot we'd ideally like to have.  However, with real data the true latent class variable is unknown.
+```{r}
+data.long %>%
+  filter(subsample <.25) %>%
+  ggplot(aes(x=time, y=y, group=id)) +
+    geom_line() +
+    facet_grid(. ~c)
+
+```

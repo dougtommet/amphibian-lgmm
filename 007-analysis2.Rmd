@@ -1,0 +1,44 @@
+## Fit the a different growth mixture model in Mplus
+
+This code fits a three class growth mixture model.  The model assumes a quadratic trajectory with equally spaced time intervals.
+
+The other code chunks are similar to the previous slide.
+```{r}
+gmm.model.2 <- " %OVERALL% 
+                 i s q| y1@0 y2@1 y3@2 y4@3 y5@4 y6@5 ;
+               "
+gmm.body <- mplusObject(
+  ANALYSIS = "type=mixture; starts = 100 20;",
+  VARIABLE = "classes = c(3); idvariable = id;",
+  MODEL = gmm.model.2,
+  OUTPUT = "",
+  SAVEDATA = "save = cprob; file=model1prob.dat;",
+  usevariables = c("id", "y1", "y2", "y3", "y4", "y5", "y6"),
+  rdata = data
+)
+gmm.fit <- mplusModeler(gmm.body, modelout = "gmm002.inp", run = TRUE)
+
+```
+
+
+```{r}
+param2 <- extractModelParameters("gmm002.out")$unstandardized %>% 
+  filter(grepl("Means", paramHeader)) %>%
+  filter(!grepl("Categorical.Latent.Variables", LatentClass))
+```
+
+```{r}
+foo <- getSavedata_Data("gmm002.out") %>%
+  rename(model2.c = C) %>%
+  select(ID, model2.c) 
+colnames(foo) <- tolower(names(foo)) 
+
+data <- data %>%
+  full_join(foo, by= "id" )
+
+data.long <- data %>% 
+  gather(foo, y, y1:y6) %>%
+  mutate(time = as.numeric(str_sub(foo, 2))) %>%
+  arrange(id, time) %>%
+  select(-foo)
+```

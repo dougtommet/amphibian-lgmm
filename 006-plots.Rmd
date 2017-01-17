@@ -1,0 +1,49 @@
+
+## Plot the trajectories of the latent classes
+
+This is my current working version of the code to create the plot.  There were many other ways I tried, but all of them failed in some way.  In the future, as I learn more about ggplot, I would like to revise this code.
+
+The things I would like to change are:
+
+- Currently, the parameter estimates need to be manually entered into the plotting function.  This breaks the rules of reproducibility.  Every time we change the model, the paraameter estimates would need to be reentered.
+- Get the ggplot functions *facet_grid* and *stat_function* to work nicely together. Then we can avoid creating individual plots for each class and then combining them.
+
+
+Create the functions to be plotted for each latent class
+```{r}
+param1.matrix <- param1 %>%
+  select(param, est, LatentClass) %>%
+  spread(param, est) %>%
+  select(-LatentClass)
+param1.matrix
+
+fun.1 <- function(x) 11.707 + 0.171*x
+fun.2 <- function(x)  2.282 + 3.486*x
+fun.3 <- function(x) 17.348 - 0.059*x
+fun.4 <- function(x)  9.261 + 1.923*x
+```
+
+Since we're going to be creating the same plot multiple times, we can put it in a function so that it would be easier to edit in the future.
+```{r}
+myplot <- function(x, f) {
+  data.long %>%
+  filter(subsample <.25) %>%
+  filter(model1.c==x) %>%
+    ggplot(aes(x=time, y=y, group=id)) +
+      scale_y_continuous(limits = c(0, 30)) +
+      geom_line() + 
+      stat_function(fun = f, color="blue", size=2) +
+      ggtitle(paste("class", x))
+  
+}
+plot1 <- myplot(1, fun.1)
+plot2 <- myplot(2, fun.2)
+plot3 <- myplot(3, fun.3)
+plot4 <- myplot(4, fun.4)
+```
+
+Combine the plots into one using code found online.
+```{r}
+multiplot(plotlist = list(plot1, plot2, plot3, plot4), cols = 2)
+```
+

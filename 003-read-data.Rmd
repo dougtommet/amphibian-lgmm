@@ -1,0 +1,33 @@
+## Read in the monte carlo data
+
+If we have actual data to use, we could jump directly to this step and read in the data in the usual way.
+
+MplusAutomation has a nice command to read in data created by Mplus.  Otherwise you would need to do a command similar to the one commented out.
+
+The growth mixture model in Mplus likes data in a "wide" format, where each measurement time is a new variable. The package ggplot likes data in a "long" format, where the measurements are stacked in one variable and another variable indicates when the measurement was taken.  
+
+This code takes the "wide" data file and converts it to "long".
+
+```{r}
+data <- getSavedata_Data("monte-carlo.out") 
+colnames(data) <- tolower(names(data))  
+
+# data <- read.fwf(file="mcdata.dat", header=FALSE, 
+#                  widths = c(rep(13, 6), 3), 
+#                  col.names = c("y1", "y2", "y3", "y4", "y5", "y6", "c"))
+
+data <- data %>%
+  mutate(id = row_number(),
+         subsample = runif(nrow(.)))
+
+data.long <- data %>% 
+  gather(foo, y, y1:y6) %>%
+  mutate(time = as.numeric(str_sub(foo, 2))) %>%
+  arrange(id, time) %>%
+  select(-foo)
+
+head(data)
+head(data.long, 18)
+
+```
+

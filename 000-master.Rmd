@@ -1,0 +1,58 @@
+---
+title: "Latent Growth Mixture Model Plots"
+author: "Doug Tommet"
+date: "`r Sys.Date()`"
+output:
+  slidy_presentation
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
+```
+
+## Overview
+
+After fitting a growth mixture model, we are often interested in the shape of the trajectories for the latent classes.  This presentation shows how to create a figure that has the estimated tractery for each latent class.  A similar figure is seen in *van de Schoot (2016)* (Figure 3).  The figure is created in R using ggplot2.
+
+---
+![van de Schoot (2016): Figure 3](figure3.png)
+
+## Overview
+This presentation will cover:
+
+* Creating the data using Mplus monte carlo
+* Reading the data into R
+* Doing a quick exploratory analysis
+* Fitting a growth mixture model in Mplus
+* Using the results from the Mplus analysis to create a plot of trajectories by class.
+
+```{r, child="001-libraries-and-functions.Rmd"}
+```
+
+```{r, child="002-create-data.Rmd"}
+```
+
+```{r, child="003-read-data.Rmd"}
+```
+
+```{r, child="004-eda.Rmd"}
+```
+
+```{r, child="005-analysis.Rmd"}
+```
+
+```{r, child="006-plots.Rmd"}
+```
+
+```{r, child="007-analysis2.Rmd"}
+```
+
+```{r, child="008-plots2.Rmd"}
+```
+
+## Mplus file
+This is the Mplus file used to create the data
+```{r comment=''}
+cat(readLines('monte-carlo.inp'), sep = '\n')
+```
