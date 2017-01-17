@@ -9,7 +9,7 @@ library(stringr)
 library(MplusAutomation)
 ```
 
-This is a user written R function I found online because I can't figure out how to make it with just a single ggplot command.  
+This is a user written R function I found online because I can't figure out some aspects of ggplot.  
 
 ```{r}
 # http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
