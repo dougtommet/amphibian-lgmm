@@ -1,0 +1,71 @@
+## Calculate Fit Indices
+
+This is code to calculate fit indices provided by David Barker.
+
+```{r}
+#code that calculates fit indices from latent class models
+# Assumes the models were run in Mplus, that the MplusAutomation package is installed,
+# and that the output files for the various enumeration models are saved in the same folder as the
+# current RStudio working directory. 
+##########RELATIVE FIT INDICIES##############
+#BIC=-2LL+dlog(n)
+#CAIC = -2LL+d[log(n)+1]
+#AWE = -2LL+2d[log(n)+1.5]
+#Bayes Factor = exp[SICa-SICb]~Pr(Model A correct)/Pr(Model B correct)
+#SIC=-.5BIC
+#correct model probability cmP = exp(SICa-SICmax)/SUM(exp(SICj-SICmax))
+
+# Use a regular expression to get Mplus output files that you want to read in
+mplus.files <- dir(pattern = "gmm.*\\.out")
+sum_stat <- extractModelSummaries(target = mplus.files, recursive = F)
+sum_stat <- sum_stat[!is.na(sum_stat$Parameters),]
+sum_stat$model <- as.numeric(gsub("m1c|[^[:digit:]]","",sum_stat$Filename))
+sum_stat<-sum_stat[order(sum_stat$model),]
+
+sum_stat <- transform(sum_stat,
+                      CAIC = -2*LL+Parameters*(log(Observations)+1),
+                      AWE = -2*LL+2*Parameters*(log(Observations)+1.5),
+                      SIC = -.5*BIC)
+sum_stat$by <- 1
+#SICmax <- aggregate(sum_stat$SIC, list(by=sum_stat$by), FUN=max, simplify = T)
+SICmax <- aggregate(SIC ~ by, data = sum_stat, max, simplify = T)
+SICmax <- plyr::rename(SICmax, c("SIC"="SICmax"))
+sum_stat <-merge(sum_stat, SICmax, by="by")
+sum_stat <- transform(sum_stat, exp_d_SIC = exp(SIC-SICmax))
+exp_d_SIC_sum <- aggregate(exp_d_SIC ~ by, data = sum_stat, FUN="sum", simplify = T)
+exp_d_SIC_sum <- plyr::rename(exp_d_SIC_sum, c("exp_d_SIC"="exp_d_SIC_sum"))
+sum_stat <-merge(sum_stat, exp_d_SIC_sum, by="by")
+sum_stat <- transform(sum_stat, cmP = exp_d_SIC/exp_d_SIC_sum)
+
+sum_stat$SIC_lag <- c(tail(sum_stat$SIC, -1),NA)
+sum_stat <- transform(sum_stat, BF_k_vs_kp1 = exp(SIC-SIC_lag))
+#minimum sample size 
+
+class.n<-matrix(nrow=nrow(sum_stat), ncol=2)
+colnames(class.n)<-c("model","min_class_size")
+for (i in 1:nrow(sum_stat)){
+  class.counts<-readModels(target = mplus.files[i], 
+                           recursive = FALSE)$class_counts$posteriorProb
+  class.n[i,]<-c(i,round(min(class.counts$count),0))
+}
+
+sum_stat<-merge(sum_stat, class.n, by="model",all=T)
+sum_stat<-subset(sum_stat, select=c("Entropy", "LL", "Parameters", "BIC",
+                                    "CAIC", "AWE", "cmP", "BF_k_vs_kp1",
+                                    "min_class_size",
+                                    "model"))
+#"T11_VLMR_PValue",
+
+## Why isn't kable working?
+# kable(sum_stat)
+sum_stat
+
+m.sum_stat<-subset(melt(sum_stat,id="model"), 
+                   variable %in% c("BIC","CAIC","AWE"), model:value)
+ggplot(m.sum_stat, aes(model, value, colour=variable)) +
+  geom_line() +
+  scale_x_continuous(breaks = seq(1, 10, 1)) +
+  mytheme
+
+```
+

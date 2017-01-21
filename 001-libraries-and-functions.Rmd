@@ -2,11 +2,13 @@
 These are the R libraries used in the presentation.
 ```{r}
 library(plyr)
+library(reshape)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
 library(stringr)
 library(MplusAutomation)
+library(knitr)
 ```
 
 This is a user written R function I found online because I can't figure out some aspects of ggplot.  

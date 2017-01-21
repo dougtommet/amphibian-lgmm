@@ -27,6 +27,10 @@ This presentation will cover:
 * Fitting a growth mixture model in Mplus
 * Using the results from the Mplus analysis to create a plot of trajectories by class.
 
+**Update**
+
+* Calculate fit indices
+
 ```{r, child="001-libraries-and-functions.Rmd"}
 ```
 
@@ -50,6 +54,10 @@ This presentation will cover:
 
 ```{r, child="008-plots2.Rmd"}
 ```
+
+```{r, child="009-fit-indices.Rmd"}
+```
+
 
 ## Mplus file
 This is the Mplus file used to create the data

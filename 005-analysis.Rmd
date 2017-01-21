@@ -25,10 +25,17 @@ After fitting the model in Mplus, we need to get the results back into R.
 This code reads in and saves the parameter estimates to an object called *param1*.
 
 ```{r}
+# This is all the model parameters
+param1 <- extractModelParameters("gmm001.out")$unstandardized
+param1
+```
 
-param1 <- extractModelParameters("gmm001.out")$unstandardized %>% 
+```{r}
+# Keeping only the parameters I'm interested in
+param1 <- param1 %>% 
   filter(grepl("Means", paramHeader)) %>%
   filter(!grepl("Categorical.Latent.Variables", LatentClass))
+param1
 ```
 
 This code reads in the predicted class membership and merges it with the original data. It also recreates the "long" format of the data.
@@ -39,9 +46,11 @@ foo <- getSavedata_Data("gmm001.out") %>%
   select(ID, model1.c) 
 colnames(foo) <- tolower(names(foo)) 
 
+# merging the predicted class membership into the "wide" data
 data <- data %>%
   full_join(foo, by= "id" )
 
+# recreating the "long" version of the data from the updated "wide" data
 data.long <- data %>% 
   gather(foo, y, y1:y6) %>%
   mutate(time = as.numeric(str_sub(foo, 2))) %>%

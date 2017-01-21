@@ -13,6 +13,7 @@ data.long %>%
 
 This is the plot we'd ideally like to have.  However, with real data the true latent class variable is unknown.
 ```{r}
+# The variable c is the "true" latent class membership
 data.long %>%
   filter(subsample <.25) %>%
   ggplot(aes(x=time, y=y, group=id)) +

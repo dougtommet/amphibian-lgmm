@@ -16,10 +16,12 @@ colnames(data) <- tolower(names(data))
 #                  widths = c(rep(13, 6), 3), 
 #                  col.names = c("y1", "y2", "y3", "y4", "y5", "y6", "c"))
 
+# data currently in "wide" format
 data <- data %>%
   mutate(id = row_number(),
          subsample = runif(nrow(.)))
 
+# converting the data to "long" format
 data.long <- data %>% 
   gather(foo, y, y1:y6) %>%
   mutate(time = as.numeric(str_sub(foo, 2))) %>%

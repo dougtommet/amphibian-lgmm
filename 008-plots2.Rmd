@@ -38,3 +38,4 @@ Combine the plots into one.
 ```{r}
 multiplot(plotlist = list(plot1, plot2, plot3), cols = 3)
 ```
+

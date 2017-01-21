@@ -25,15 +25,18 @@ fun.4 <- function(x)  9.261 + 1.923*x
 
 Since we're going to be creating the same plot multiple times, we can put it in a function so that it would be easier to edit in the future.
 ```{r}
-myplot <- function(x, f) {
+# Creating my own function to do the individual plots.
+# a is the class number
+# f is the corresponding function to be plotted
+myplot <- function(a, f) {
   data.long %>%
   filter(subsample <.25) %>%
-  filter(model1.c==x) %>%
+  filter(model1.c==a) %>%
     ggplot(aes(x=time, y=y, group=id)) +
       scale_y_continuous(limits = c(0, 30)) +
       geom_line() + 
       stat_function(fun = f, color="blue", size=2) +
-      ggtitle(paste("class", x))
+      ggtitle(paste("class", a))
   
 }
 plot1 <- myplot(1, fun.1)
@@ -43,6 +46,50 @@ plot4 <- myplot(4, fun.4)
 ```
 
 Combine the plots into one using code found online.
+```{r}
+# This is the function listed in "001-libraries-and-functions.Rmd"
+multiplot(plotlist = list(plot1, plot2, plot3, plot4), cols = 2)
+```
+
+Clean up the plots with code provided by David Barker
+```{r}
+mytheme<-  theme(panel.background = element_blank(),
+                 axis.title.x     = element_text(vjust=-.25,
+                                      size=18, face="bold"),
+                 axis.title.y     = element_text(vjust=1.25,
+                                      size=18, face="bold"),
+                 axis.text        = element_text(size=18),
+                 axis.line        = element_line(colour="black"),
+                 panel.grid.minor = element_blank(),
+                 panel.grid.major = element_line(colour="grey90"),
+                 legend.background = element_blank(),
+                 legend.title      = element_text(size=12),
+                 legend.text       = element_text(size=12),
+                 legend.key        = element_blank(),
+                 legend.key.size   = unit(1.5, "lines"),
+                 legend.key.width  = unit(1, "lines"))
+#legend.position="none")
+
+# This function only differs by the addition of "mytheme"
+dbplot <- function(a, f) {
+  data.long %>%
+  filter(subsample <.25) %>%
+  filter(model1.c==a) %>%
+    ggplot(aes(x=time, y=y, group=id)) +
+      scale_y_continuous(limits = c(0, 30)) +
+      geom_line() + 
+      stat_function(fun = f, color="blue", size=2) +
+      ggtitle(paste("class", a)) +
+      mytheme
+  
+}
+plot1 <- dbplot(1, fun.1)
+plot2 <- dbplot(2, fun.2)
+plot3 <- dbplot(3, fun.3)
+plot4 <- dbplot(4, fun.4)
+
+```
+
 ```{r}
 multiplot(plotlist = list(plot1, plot2, plot3, plot4), cols = 2)
 ```
